@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: web-conferencing-backend
+    env: node
+    region: oregon
+    plan: free
+    rootDir: server
+    buildCommand: "npm install"
+    startCommand: "npm start"
+    branch: main
+    envVars:
+      - key: PORT
+        value: "3000"
+      - key: GEMINI_API_KEY
+        fromService: null # Add via Render dashboard as a secret

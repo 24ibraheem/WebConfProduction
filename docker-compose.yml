@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - MONGODB_URI=mongodb://mongo:27017/webconference
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - VITE_SOCKET_SERVER_URL=http://localhost:3000
+    depends_on:
+      - mongo
+    networks:
+      - webconf-network
+
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_DB=webconference
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - webconf-network
+
+volumes:
+  mongo-data:
+
+networks:
+  webconf-network:
+    driver: bridge
