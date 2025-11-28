@@ -258,6 +258,19 @@ export default function MeetingRoom() {
       }
     });
 
+    // YouTube Sharing Listeners
+    socket.on('youtube-shared', ({ link }) => {
+      console.log('📺 [YouTube] Received shared link:', link);
+      setYoutubeLink(link);
+      setIsSharingYoutube(true);
+    });
+
+    socket.on('youtube-stopped', () => {
+      console.log('📺 [YouTube] Sharing stopped');
+      setIsSharingYoutube(false);
+      setYoutubeLink('');
+    });
+
     socket.on('receive-message', (message) => {
       console.log('💬 [receive-message] From:', message.userName, 'Role:', message.userRole, 'Text:', message.text.substring(0, 40));
       setChatMessages(prev => [...prev, message]);
@@ -859,6 +872,7 @@ export default function MeetingRoom() {
                           if (getYoutubeEmbedUrl(youtubeLink)) {
                             setIsSharingYoutube(true);
                             setShowYoutubeInput(false);
+                            socketRef.current.emit('share-youtube', { roomId: id, link: youtubeLink });
                           } else {
                             alert('Please enter a valid YouTube URL');
                           }
@@ -873,6 +887,7 @@ export default function MeetingRoom() {
                             setIsSharingYoutube(false);
                             setYoutubeLink('');
                             setShowYoutubeInput(false);
+                            socketRef.current.emit('stop-share-youtube', { roomId: id });
                           }}
                           className="flex-1 bg-slate-800 hover:bg-slate-700 text-white text-sm py-2.5 rounded-xl font-medium transition-all border border-slate-700 hover:border-slate-600"
                         >
@@ -1281,6 +1296,18 @@ export default function MeetingRoom() {
             {/* Presenter Screen (Instructor) */}
             <div className="flex-1 bg-slate-900/50 backdrop-blur-sm border border-slate-700/50 rounded-3xl overflow-hidden relative group shadow-2xl shadow-black/50 ring-1 ring-white/5" style={{ minHeight: '600px', maxHeight: 'calc(100vh - 120px)' }}>
               {(() => {
+                if (isSharingYoutube) {
+                  return (
+                    <iframe 
+                      src={getYoutubeEmbedUrl(youtubeLink)} 
+                      className="w-full h-full bg-black" 
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                      allowFullScreen
+                      title="YouTube Video Player"
+                    />
+                  );
+                }
+
                 // Find instructor stream
                 const instructor = participants.find(p => p.isAdmin);
                 const instructorStream = instructor ? remoteStreams.find(s => s.peerId === instructor.id) : null;

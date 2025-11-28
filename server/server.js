@@ -351,6 +351,21 @@ io.on('connection', (socket) => {
     console.log(`[${roomId}] Instructor muted participant ${participantId}`);
   });
 
+  // ============ YouTube Sharing Handlers ============
+  
+  // Start sharing YouTube video
+  socket.on('share-youtube', ({ roomId, link }) => {
+    console.log(`📺 [YouTube] Sharing video in room ${roomId}: ${link}`);
+    // Broadcast to everyone in the room (including sender if needed, but usually sender updates locally)
+    io.to(roomId).emit('youtube-shared', { link });
+  });
+
+  // Stop sharing YouTube video
+  socket.on('stop-share-youtube', ({ roomId }) => {
+    console.log(`📺 [YouTube] Stopped sharing video in room ${roomId}`);
+    io.to(roomId).emit('youtube-stopped');
+  });
+
   // ============ WebRTC Signaling Handlers ============
   
   // Relay WebRTC offer from one peer to another
