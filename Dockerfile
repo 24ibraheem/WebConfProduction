@@ -30,8 +30,8 @@ COPY --from=builder /app/server/models ./models
 COPY --from=builder /app/server/utils ./utils
 COPY --from=builder /app/server/server.js ./
 
-# Copy built frontend (Vite 'dist') into public
-COPY --from=builder /app/dist ./public
+# Copy built frontend (Vite 'dist') to /dist (where server.js expects it)
+COPY --from=builder /app/dist /dist
 
 ENV NODE_ENV=production
 EXPOSE 3000
